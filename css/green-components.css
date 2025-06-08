@@ -1,0 +1,63 @@
+/* AgenticLearn Shared Green Components CSS */
+:root {
+    --primary: #2563eb;
+    --success: #059669;
+    --warning: #d97706;
+    --error: #dc2626;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-800: #1f2937;
+    --shadow: 0 1px 3px rgba(0,0,0,0.12);
+    --radius: 8px;
+}
+
+.green-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 1rem;
+    border-left: 4px solid var(--success);
+}
+
+.green-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    background: var(--success);
+    color: white;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+.green-btn:hover {
+    background: #047857;
+}
+
+.carbon-indicator {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--success);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    box-shadow: var(--shadow);
+}
+
+.loading-green {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--gray-100);
+    border-top: 2px solid var(--success);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
