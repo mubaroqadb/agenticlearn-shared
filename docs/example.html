@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgenticLearn Shared Components - Example</title>
+    
+    <!-- Import CSS -->
+    <link rel="stylesheet" href="https://YOUR_USERNAME.github.io/agenticlearn-shared/css/green-components.css">
+    
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f9fafb;
+            margin: 0;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .demo-section {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+        }
+        .code-block {
+            background: #f3f4f6;
+            border-radius: 4px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+        }
+        .btn-demo {
+            margin: 0.5rem 0.5rem 0.5rem 0;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            background: #2563eb;
+            color: white;
+            font-size: 0.875rem;
+        }
+        .btn-demo:hover {
+            background: #3b82f6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="demo-section">
+            <h1>🌱 AgenticLearn Shared Components</h1>
+            <p>Demo dan contoh penggunaan komponen shared dengan import dari GitHub Pages</p>
+        </header>
+
+        <section class="demo-section">
+            <h2>📡 API Client Demo</h2>
+            <p>Contoh penggunaan API Client dengan carbon footprint tracking:</p>
+            
+            <div class="code-block">
+import { apiClient } from "https://YOUR_USERNAME.github.io/agenticlearn-shared/js/api-client.js";
+
+const data = await apiClient.request("/auth/me");
+console.log("Carbon footprint:", apiClient.getCarbonMetrics());
+            </div>
+            
+            <button class="btn-demo" onclick="testAPIClient()">Test API Client</button>
+            <button class="btn-demo" onclick="showCarbonMetrics()">Show Carbon Metrics</button>
+            
+            <div id="api-result" style="margin-top: 1rem;"></div>
+        </section>
+
+        <section class="demo-section">
+            <h2>🎨 UI Components Demo</h2>
+            <p>Contoh penggunaan UI Components:</p>
+            
+            <div class="code-block">
+import { UIComponents } from "https://YOUR_USERNAME.github.io/agenticlearn-shared/js/ui-components.js";
+
+UIComponents.showNotification("Success!", "success");
+            </div>
+            
+            <button class="btn-demo" onclick="showSuccessNotification()">Success Notification</button>
+            <button class="btn-demo" onclick="showWarningNotification()">Warning Notification</button>
+            <button class="btn-demo" onclick="showErrorNotification()">Error Notification</button>
+            <button class="btn-demo" onclick="showInfoNotification()">Info Notification</button>
+            
+            <div style="margin-top: 1rem;">
+                <button class="btn-demo" onclick="createDemoCard()">Create Card</button>
+                <button class="btn-demo" onclick="createProgressBar()">Create Progress Bar</button>
+            </div>
+            
+            <div id="ui-demo-area" style="margin-top: 1rem;"></div>
+        </section>
+
+        <section class="demo-section">
+            <h2>🎨 CSS Classes Demo</h2>
+            <p>Contoh penggunaan CSS classes dari green-components.css:</p>
+            
+            <div class="green-card">
+                <h3>Green Card Example</h3>
+                <p>Ini adalah contoh green card dengan styling eco-friendly.</p>
+                <button class="green-btn">Green Button</button>
+            </div>
+            
+            <div style="margin-top: 1rem;">
+                <div class="loading-green"></div>
+                <span style="margin-left: 1rem;">Loading spinner hijau</span>
+            </div>
+        </section>
+
+        <section class="demo-section">
+            <h2>📊 Carbon Footprint Tracking</h2>
+            <p>Real-time carbon footprint monitoring:</p>
+            <div id="carbon-display">
+                <div class="green-card">
+                    <h4>🌱 Carbon Metrics</h4>
+                    <div id="carbon-metrics">Loading...</div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Carbon indicator (fixed position) -->
+    <div class="carbon-indicator" id="carbon-indicator">
+        🌱 0.000g CO2
+    </div>
+
+    <script type="module">
+        // Import API Client
+        import { apiClient } from "../js/api-client.js";
+        
+        // Import UI Components  
+        import { UIComponents } from "../js/ui-components.js";
+
+        // Make functions global for demo buttons
+        window.testAPIClient = async function() {
+            try {
+                const result = await apiClient.request("/auth/me");
+                document.getElementById("api-result").innerHTML = `
+                    <div class="green-card">
+                        <h4>API Response:</h4>
+                        <pre>${JSON.stringify(result, null, 2)}</pre>
+                    </div>
+                `;
+                updateCarbonDisplay();
+            } catch (error) {
+                document.getElementById("api-result").innerHTML = `
+                    <div style="color: #dc2626; padding: 1rem; background: #fef2f2; border-radius: 4px;">
+                        Error: ${error.message}
+                    </div>
+                `;
+            }
+        };
+
+        window.showCarbonMetrics = function() {
+            const metrics = apiClient.getCarbonMetrics();
+            document.getElementById("api-result").innerHTML = `
+                <div class="green-card">
+                    <h4>🌱 Carbon Metrics:</h4>
+                    <p><strong>Total Requests:</strong> ${metrics.totalRequests}</p>
+                    <p><strong>Total Carbon:</strong> ${metrics.totalCarbon.toFixed(6)}g CO2</p>
+                    <p><strong>Average per Request:</strong> ${metrics.averageCarbon.toFixed(6)}g CO2</p>
+                    <p><strong>Efficiency Score:</strong> ${metrics.efficiency.toFixed(2)}</p>
+                </div>
+            `;
+        };
+
+        window.showSuccessNotification = function() {
+            UIComponents.showNotification("Operation completed successfully! 🎉", "success");
+        };
+
+        window.showWarningNotification = function() {
+            UIComponents.showNotification("Please check your input ⚠️", "warning");
+        };
+
+        window.showErrorNotification = function() {
+            UIComponents.showNotification("Something went wrong ❌", "error");
+        };
+
+        window.showInfoNotification = function() {
+            UIComponents.showNotification("Here's some useful information ℹ️", "info");
+        };
+
+        window.createDemoCard = function() {
+            const cardHTML = UIComponents.createCard(
+                "Demo Card",
+                "This is a dynamically created card using UIComponents.createCard()",
+                [
+                    { label: "Action 1", handler: "alert('Action 1 clicked!')" },
+                    { label: "Action 2", handler: "alert('Action 2 clicked!')" }
+                ]
+            );
+            document.getElementById("ui-demo-area").innerHTML = cardHTML;
+        };
+
+        window.createProgressBar = function() {
+            const progressHTML = UIComponents.createProgressBar(75, "Demo Progress");
+            document.getElementById("ui-demo-area").innerHTML = progressHTML;
+        };
+
+        function updateCarbonDisplay() {
+            const metrics = apiClient.getCarbonMetrics();
+            document.getElementById("carbon-indicator").textContent = 
+                `🌱 ${metrics.totalCarbon.toFixed(6)}g CO2`;
+            
+            document.getElementById("carbon-metrics").innerHTML = `
+                <p><strong>Requests:</strong> ${metrics.totalRequests}</p>
+                <p><strong>Carbon:</strong> ${metrics.totalCarbon.toFixed(6)}g CO2</p>
+                <p><strong>Efficiency:</strong> ${metrics.efficiency.toFixed(2)}</p>
+            `;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCarbonDisplay();
+            
+            // Update carbon display every 5 seconds
+            setInterval(updateCarbonDisplay, 5000);
+            
+            console.log("🌱 AgenticLearn Shared Components Demo loaded");
+            UIComponents.showNotification("Demo page loaded successfully!", "success");
+        });
+    </script>
+</body>
+</html>
