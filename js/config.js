@@ -10,10 +10,11 @@ const CLOUD_FUNCTIONS_BASE = `https://asia-southeast1-${PROJECT_ID}.cloudfunctio
 export const API_CONFIG = {
     development: {
         auth: "http://localhost:8080/api/v1/auth",
-        content: "http://localhost:8080/api/v1/learning", 
+        content: "http://localhost:8080/api/v1/learning",
         assessment: "http://localhost:8080/api/v1/learning/assessment",
         personalization: "http://localhost:8080/api/v1/personalization",
         admin: "http://localhost:8080/api/v1/admin",
+        aria: "http://localhost:8080/api/v1/aria",
         realtime: "ws://localhost:8080/ws"
     },
     production: {
@@ -22,6 +23,7 @@ export const API_CONFIG = {
         assessment: `${CLOUD_FUNCTIONS_BASE}/agenticlearn-assessment`,
         personalization: `${CLOUD_FUNCTIONS_BASE}/agenticlearn-personalization`,
         admin: `${CLOUD_FUNCTIONS_BASE}/agenticlearn-admin`,
+        aria: `${CLOUD_FUNCTIONS_BASE}/aria-function`,
         realtime: null // Will use Firebase for real-time features
     }
 };
@@ -44,6 +46,7 @@ export const FEATURE_FLAGS = {
     USE_CLOUD_FUNCTIONS_ASSESSMENT: false, // Still use Railway/local
     USE_CLOUD_FUNCTIONS_PERSONALIZATION: false, // Still use Railway/local
     USE_CLOUD_FUNCTIONS_ADMIN: false, // Still use Railway/local
+    USE_CLOUD_FUNCTIONS_ARIA: true, // ARIA AI Tutor ready for Cloud Functions
     USE_FIREBASE_REALTIME: false // Still use WebSocket
 };
 
@@ -62,7 +65,8 @@ export function getEndpoint(service) {
         content: "https://agenticlearn-backend-production.up.railway.app/api/v1/learning",
         assessment: "https://agenticlearn-backend-production.up.railway.app/api/v1/learning/assessment",
         personalization: "https://agenticlearn-backend-production.up.railway.app/api/v1/personalization",
-        admin: "https://agenticlearn-backend-production.up.railway.app/api/v1/admin"
+        admin: "https://agenticlearn-backend-production.up.railway.app/api/v1/admin",
+        aria: "https://agenticlearn-backend-production.up.railway.app/api/v1/aria"
     };
     
     return getCurrentEnvironment() === 'development' ? endpoints[service] : railwayEndpoints[service];
@@ -71,10 +75,11 @@ export function getEndpoint(service) {
 // Migration status tracking
 export const MIGRATION_STATUS = {
     auth: "✅ Migrated to Cloud Functions",
-    content: "✅ Migrated to Cloud Functions", 
+    content: "✅ Migrated to Cloud Functions",
     assessment: "🔄 Placeholder deployed, needs implementation",
     personalization: "🔄 Placeholder deployed, needs implementation",
     admin: "🔄 Placeholder deployed, needs implementation",
+    aria: "🤖 ARIA AI Tutor - Ready for Cloud Functions",
     realtime: "📋 Needs Firebase integration"
 };
 

@@ -71,6 +71,50 @@ export class AgenticAPIClient {
         return this.request('admin', endpoint, options);
     }
 
+    // ARIA AI Tutor methods
+    async aria(endpoint, options = {}) {
+        return this.request('aria', endpoint, options);
+    }
+
+    // Convenience methods for ARIA
+    async ariaChatMessage(message, sessionId = null, context = {}) {
+        return this.aria('/chat', {
+            method: 'POST',
+            body: {
+                message,
+                session_id: sessionId,
+                context
+            }
+        });
+    }
+
+    async ariaCreateSession(learningGoals = [], context = {}) {
+        return this.aria('/session', {
+            method: 'POST',
+            body: {
+                learning_goals: learningGoals,
+                context
+            }
+        });
+    }
+
+    async ariaGetSession(sessionId) {
+        return this.aria(`/session/${sessionId}`);
+    }
+
+    async ariaGetKnowledge(topic = null, category = null) {
+        const params = new URLSearchParams();
+        if (topic) params.append('topic', topic);
+        if (category) params.append('category', category);
+
+        const queryString = params.toString();
+        return this.aria(`/knowledge${queryString ? '?' + queryString : ''}`);
+    }
+
+    async ariaHealthCheck() {
+        return this.aria('/health');
+    }
+
     calculateCarbon(duration, dataSize) {
         const processingCarbon = (duration / 1000) * 0.0001;
         const dataCarbon = (dataSize / 1024) * 0.000006;
