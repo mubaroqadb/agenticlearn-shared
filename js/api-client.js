@@ -1,19 +1,21 @@
-// AgenticLearn Shared API Client dengan JSCroot
+// AgenticLearn Shared API Client dengan JSCroot + Cloud Functions
 import { getCookie } from "https://cdn.jsdelivr.net/gh/jscroot/lib@0.0.4/cookie.js";
+import { getEndpoint, getCurrentEnvironment } from "./config.js";
 
 export class AgenticAPIClient {
-    constructor(baseURL = "window.location.hostname.includes("localhost") ? "http://localhost:8080/api/v1" : "https://agenticlearn-backend-production.up.railway.app/api/v1"") {
-        this.baseURL = baseURL;
+    constructor() {
         this.carbonFootprint = 0;
         this.requestCount = 0;
+        console.log(`🌱 API Client initialized for ${getCurrentEnvironment()} environment`);
     }
 
-    async request(endpoint, options = {}) {
+    async request(service, endpoint, options = {}) {
         const startTime = performance.now();
         this.requestCount++;
 
-        const token = getCookie("login");
-        const url = `${this.baseURL}${endpoint}`;
+        const token = getCookie("access_token") || getCookie("login");
+        const baseURL = getEndpoint(service);
+        const url = `${baseURL}${endpoint}`;
 
         try {
             const response = await fetch(url, {
@@ -23,6 +25,7 @@ export class AgenticAPIClient {
                     "Authorization": token ? `Bearer ${token}` : "",
                     "X-Carbon-Efficient": "true",
                     "X-JSCroot": "optimized",
+                    "X-Cloud-Functions": "true",
                     ...options.headers
                 },
                 body: options.body ? JSON.stringify(options.body) : undefined
@@ -34,7 +37,7 @@ export class AgenticAPIClient {
             const carbonImpact = this.calculateCarbon(duration, JSON.stringify(data).length);
             this.carbonFootprint += carbonImpact;
 
-            console.log(`🌱 API ${endpoint}: ${duration.toFixed(2)}ms, ${carbonImpact.toFixed(6)}g CO2`);
+            console.log(`🌱 API ${service}${endpoint}: ${duration.toFixed(2)}ms, ${carbonImpact.toFixed(6)}g CO2`);
 
             if (!response.ok) {
                 throw new Error(data.message || `HTTP ${response.status}`);
@@ -42,9 +45,30 @@ export class AgenticAPIClient {
 
             return data;
         } catch (error) {
-            console.error(`API Error ${endpoint}:`, error);
+            console.error(`API Error ${service}${endpoint}:`, error);
             throw error;
         }
+    }
+
+    // Convenience methods for each service
+    async auth(endpoint, options = {}) {
+        return this.request('auth', endpoint, options);
+    }
+
+    async content(endpoint, options = {}) {
+        return this.request('content', endpoint, options);
+    }
+
+    async assessment(endpoint, options = {}) {
+        return this.request('assessment', endpoint, options);
+    }
+
+    async personalization(endpoint, options = {}) {
+        return this.request('personalization', endpoint, options);
+    }
+
+    async admin(endpoint, options = {}) {
+        return this.request('admin', endpoint, options);
     }
 
     calculateCarbon(duration, dataSize) {
