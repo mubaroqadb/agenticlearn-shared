@@ -43,9 +43,9 @@ export function getAPIEndpoints() {
 export const FEATURE_FLAGS = {
     USE_CLOUD_FUNCTIONS_AUTH: true,
     USE_CLOUD_FUNCTIONS_CONTENT: true,
-    USE_CLOUD_FUNCTIONS_ASSESSMENT: false, // Still use Railway/local
-    USE_CLOUD_FUNCTIONS_PERSONALIZATION: false, // Still use Railway/local
-    USE_CLOUD_FUNCTIONS_ADMIN: false, // Still use Railway/local
+    USE_CLOUD_FUNCTIONS_ASSESSMENT: true, // Will use Google Cloud
+    USE_CLOUD_FUNCTIONS_PERSONALIZATION: true, // Will use Google Cloud
+    USE_CLOUD_FUNCTIONS_ADMIN: true, // Will use Google Cloud
     USE_CLOUD_FUNCTIONS_ARIA: true, // ARIA AI Tutor ready for Cloud Functions
     USE_FIREBASE_REALTIME: false // Still use WebSocket
 };
@@ -59,44 +59,41 @@ export function getEndpoint(service) {
         return endpoints[service];
     }
     
-    // Fallback to Railway for services not yet migrated
-    const railwayEndpoints = {
-        auth: "https://agenticlearn-backend-production.up.railway.app/api/v1/auth",
-        content: "https://agenticlearn-backend-production.up.railway.app/api/v1/learning",
-        assessment: "https://agenticlearn-backend-production.up.railway.app/api/v1/learning/assessment",
-        personalization: "https://agenticlearn-backend-production.up.railway.app/api/v1/personalization",
-        admin: "https://agenticlearn-backend-production.up.railway.app/api/v1/admin",
-        aria: "https://agenticlearn-backend-production.up.railway.app/api/v1/aria"
+    // Fallback to Google Cloud for services not yet migrated
+    const googleCloudEndpoints = {
+        auth: "https://api.agenticlearn.com/api/v1/auth",
+        content: "https://api.agenticlearn.com/api/v1/learning",
+        assessment: "https://api.agenticlearn.com/api/v1/learning/assessment",
+        personalization: "https://api.agenticlearn.com/api/v1/personalization",
+        admin: "https://api.agenticlearn.com/api/v1/admin",
+        aria: "https://api.agenticlearn.com/api/v1/aria"
     };
-    
-    return getCurrentEnvironment() === 'development' ? endpoints[service] : railwayEndpoints[service];
+
+    return getCurrentEnvironment() === 'development' ? endpoints[service] : googleCloudEndpoints[service];
 }
 
 // Migration status tracking
 export const MIGRATION_STATUS = {
-    auth: "✅ Migrated to Cloud Functions",
-    content: "✅ Migrated to Cloud Functions",
-    assessment: "🔄 Placeholder deployed, needs implementation",
-    personalization: "🔄 Placeholder deployed, needs implementation",
-    admin: "🔄 Placeholder deployed, needs implementation",
-    aria: "🤖 ARIA AI Tutor - Ready for Cloud Functions",
-    realtime: "📋 Needs Firebase integration"
+    auth: "✅ Ready for Google Cloud",
+    content: "✅ Ready for Google Cloud",
+    assessment: "✅ Ready for Google Cloud",
+    personalization: "✅ Ready for Google Cloud",
+    admin: "✅ Ready for Google Cloud",
+    aria: "✅ Ready for Google Cloud",
+    realtime: "📋 Planned - WebSocket to Firebase"
 };
 
 // Deployment information
 export const DEPLOYMENT_INFO = {
-    cloudFunctions: {
+    googleCloud: {
         region: "asia-southeast1",
         runtime: "go121",
         memory: "512Mi",
         timeout: "60s",
         minInstances: 0,
-        maxInstances: 100
-    },
-    railway: {
-        url: "https://agenticlearn-backend-production.up.railway.app",
-        status: "active",
-        backup: true
+        maxInstances: 100,
+        url: "https://api.agenticlearn.com",
+        status: "planned"
     }
 };
 
