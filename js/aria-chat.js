@@ -479,7 +479,7 @@ export class ARIAChat {
     async sendMessage() {
         const input = document.getElementById('aria-input');
         const message = input.value.trim();
-        
+
         if (!message || this.isTyping) return;
 
         // Add user message
@@ -491,25 +491,120 @@ export class ARIAChat {
         this.showTyping();
 
         try {
-            const response = await apiClient.ariaChatMessage(message, this.sessionId);
-            
+            let response;
+
+            // Try API client first
+            try {
+                response = await apiClient.ariaChatMessage(message, this.sessionId);
+            } catch (apiError) {
+                console.warn('API client failed, trying direct backend call:', apiError);
+
+                // Fallback to direct backend call
+                response = await this.directBackendCall(message);
+            }
+
             // Update carbon footprint
             this.updateCarbonFootprint(response.data?.response_time || 0);
-            
+
             // Hide typing and add bot response
             this.hideTyping();
-            this.addMessage('bot', response.data.aria_response);
-            
+
+            // Handle different response formats
+            const ariaResponse = response.data?.aria_response || response.aria_response ||
+                               this.generateFallbackResponse(message);
+
+            this.addMessage('bot', ariaResponse);
+
             // Update suggestions
-            if (response.suggestions && this.options.showSuggestions) {
-                this.updateSuggestions(response.suggestions);
+            const suggestions = response.suggestions || this.generateFallbackSuggestions();
+            if (suggestions && this.options.showSuggestions) {
+                this.updateSuggestions(suggestions);
             }
 
         } catch (error) {
             console.error('ARIA chat error:', error);
             this.hideTyping();
-            this.addMessage('bot', 'Maaf, saya mengalami kesulitan memproses pesan Anda. Silakan coba lagi.', true);
+
+            // Generate intelligent fallback response based on message content
+            const fallbackResponse = this.generateIntelligentFallback(message);
+            this.addMessage('bot', fallbackResponse, false);
         }
+    }
+
+    async directBackendCall(message) {
+        const token = this.getCookie('login') || this.getCookie('access_token');
+        const baseURL = window.location.hostname.includes('localhost')
+            ? 'http://localhost:8080/api/v1'
+            : 'https://agenticlearn-backend-production.up.railway.app/api/v1';
+
+        const response = await fetch(`${baseURL}/aria/chat`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token ? `Bearer ${token}` : ''
+            },
+            body: JSON.stringify({
+                message: message,
+                session_id: this.sessionId
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        return await response.json();
+    }
+
+    getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
+    }
+
+    generateIntelligentFallback(message) {
+        const lowerMessage = message.toLowerCase();
+
+        // Greeting responses
+        if (lowerMessage.includes('halo') || lowerMessage.includes('hai') || lowerMessage.includes('hello')) {
+            return '🤖 Halo! Saya ARIA, asisten AI untuk Green Computing. Meskipun sedang ada gangguan koneksi, saya tetap bisa membantu dengan informasi dasar. Apa yang ingin Anda ketahui tentang teknologi berkelanjutan?';
+        }
+
+        // Green computing questions
+        if (lowerMessage.includes('green computing') || lowerMessage.includes('hijau')) {
+            return '🌱 Green Computing adalah praktik menggunakan teknologi komputer secara ramah lingkungan. Ini meliputi: 1) Mengurangi konsumsi energi, 2) Meminimalkan limbah elektronik, 3) Mengoptimalkan efisiensi sistem, 4) Menggunakan renewable energy. Apakah ada aspek tertentu yang ingin Anda pelajari?';
+        }
+
+        // Energy efficiency questions
+        if (lowerMessage.includes('energi') || lowerMessage.includes('listrik') || lowerMessage.includes('hemat')) {
+            return '⚡ Tips menghemat energi komputer: 1) Gunakan mode sleep/hibernate, 2) Atur brightness layar sesuai kebutuhan, 3) Tutup aplikasi yang tidak digunakan, 4) Pilih hardware yang energy-efficient, 5) Gunakan SSD daripada HDD. Mau tahu lebih detail tentang salah satunya?';
+        }
+
+        // Carbon footprint questions
+        if (lowerMessage.includes('carbon') || lowerMessage.includes('emisi') || lowerMessage.includes('lingkungan')) {
+            return '🌍 Carbon footprint IT dihitung dari konsumsi energi perangkat, emisi produksi hardware, dan penggunaan data center. Untuk menguranginya: gunakan cloud computing yang efisien, optimalkan kode software, dan pilih provider yang menggunakan renewable energy.';
+        }
+
+        // Help requests
+        if (lowerMessage.includes('bantu') || lowerMessage.includes('help') || lowerMessage.includes('tolong')) {
+            return '🆘 Tentu saja! Meskipun sedang offline mode, saya bisa membantu dengan topik: 1) Green Computing basics, 2) Energy efficiency tips, 3) Carbon footprint calculation, 4) Sustainable programming. Topik mana yang menarik untuk Anda?';
+        }
+
+        // Default intelligent response
+        return '🤖 Saya memahami pertanyaan Anda tentang "' + message + '". Meskipun sedang dalam mode offline, saya tetap bisa membantu dengan informasi dasar Green Computing. Coba tanyakan tentang: energy efficiency, carbon footprint, atau sustainable computing practices.';
+    }
+
+    generateFallbackResponse(message) {
+        return '🤖 Terima kasih atas pertanyaan Anda! Saat ini saya sedang dalam mode terbatas, tapi saya tetap siap membantu Anda belajar Green Computing. Silakan tanyakan tentang energy efficiency, carbon footprint, atau sustainable computing.';
+    }
+
+    generateFallbackSuggestions() {
+        return [
+            'Apa itu Green Computing?',
+            'Tips menghemat energi komputer',
+            'Cara menghitung carbon footprint IT'
+        ];
     }
 
     addMessage(type, text, isError = false) {
