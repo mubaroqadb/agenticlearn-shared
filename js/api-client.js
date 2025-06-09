@@ -2,7 +2,7 @@
 import { getCookie } from "https://cdn.jsdelivr.net/gh/jscroot/lib@0.0.4/cookie.js";
 
 export class AgenticAPIClient {
-    constructor(baseURL = "https://agenticlearn-api-production.up.railway.app/api/v1") {
+    constructor(baseURL = "window.location.hostname.includes("localhost") ? "http://localhost:8080/api/v1" : "https://agenticlearn-backend-production.up.railway.app/api/v1"") {
         this.baseURL = baseURL;
         this.carbonFootprint = 0;
         this.requestCount = 0;
