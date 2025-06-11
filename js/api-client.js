@@ -115,6 +115,40 @@ export class AgenticAPIClient {
         return this.request(API_ENDPOINTS.COURSE_PROGRESS(courseId));
     }
 
+    // Assessment methods
+    async getDigitalSkillsAssessment() {
+        return this.request(API_ENDPOINTS.ASSESSMENT_DIGITAL_SKILLS);
+    }
+
+    async submitDigitalSkillsAssessment(responses) {
+        return this.request(API_ENDPOINTS.ASSESSMENT_DIGITAL_SKILLS, {
+            method: 'POST',
+            body: { responses }
+        });
+    }
+
+    async getLearningStyleAssessment() {
+        return this.request(API_ENDPOINTS.ASSESSMENT_LEARNING_STYLE);
+    }
+
+    async submitLearningStyleAssessment(responses) {
+        return this.request(API_ENDPOINTS.ASSESSMENT_LEARNING_STYLE, {
+            method: 'POST',
+            body: { responses }
+        });
+    }
+
+    async getTechComfortSurvey() {
+        return this.request(API_ENDPOINTS.ASSESSMENT_TECH_COMFORT);
+    }
+
+    async submitTechComfortSurvey(responses) {
+        return this.request(API_ENDPOINTS.ASSESSMENT_TECH_COMFORT, {
+            method: 'POST',
+            body: { responses }
+        });
+    }
+
     // AI methods
     async ariaChat(message, context = '') {
         return this.request(API_ENDPOINTS.ARIA_CHAT, {
@@ -125,6 +159,13 @@ export class AgenticAPIClient {
 
     async getRecommendations() {
         return this.request(API_ENDPOINTS.ARIA_RECOMMENDATIONS);
+    }
+
+    // Content management
+    async initializeContent() {
+        return this.request(API_ENDPOINTS.CONTENT_INITIALIZE, {
+            method: 'POST'
+        });
     }
 
     // Health check

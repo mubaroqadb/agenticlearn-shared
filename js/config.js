@@ -74,11 +74,19 @@ export const API_ENDPOINTS = {
     // Progress
     PROGRESS: '/api/agenticlearn/progress',
     COURSE_PROGRESS: (courseId) => `/api/agenticlearn/progress/${courseId}`,
-    
+
+    // Assessment System
+    ASSESSMENT_DIGITAL_SKILLS: '/api/agenticlearn/assessment/digital-skills',
+    ASSESSMENT_LEARNING_STYLE: '/api/agenticlearn/assessment/learning-style',
+    ASSESSMENT_TECH_COMFORT: '/api/agenticlearn/assessment/tech-comfort',
+
     // AI Features
     ARIA_CHAT: '/api/agenticlearn/aria/chat',
     ARIA_RECOMMENDATIONS: '/api/agenticlearn/aria/recommendations',
-    
+
+    // Content Management
+    CONTENT_INITIALIZE: '/api/agenticlearn/content/initialize',
+
     // Health
     HEALTH: '/api/agenticlearn/health'
 };
