@@ -1,30 +1,32 @@
 // AgenticLearn Configuration for Cloud Functions
-// Update PROJECT_ID with your actual Google Cloud Project ID
+// Updated with actual deployed backend
 
-const PROJECT_ID = "agenticlearn-project"; // 🔧 UPDATE THIS WITH YOUR PROJECT ID
+const PROJECT_ID = "agenticai-462517"; // ✅ Updated with actual project ID
 
-// Cloud Functions Configuration
-const CLOUD_FUNCTIONS_BASE = `https://asia-southeast1-${PROJECT_ID}.cloudfunctions.net`;
+// Cloud Functions Configuration - Updated to actual deployed endpoint
+const CLOUD_FUNCTIONS_BASE = `https://asia-southeast2-${PROJECT_ID}.cloudfunctions.net/domyid`;
 
 // Environment-based API Configuration
 export const API_CONFIG = {
     development: {
-        auth: "http://localhost:8080/api/v1/auth",
-        content: "http://localhost:8080/api/v1/learning",
-        assessment: "http://localhost:8080/api/v1/learning/assessment",
-        personalization: "http://localhost:8080/api/v1/personalization",
-        admin: "http://localhost:8080/api/v1/admin",
-        aria: "http://localhost:8080/api/v1/aria",
-        realtime: "ws://localhost:8080/ws"
+        base: "http://localhost:8080",
+        auth: "http://localhost:8080/api/agenticlearn/auth",
+        content: "http://localhost:8080/api/agenticlearn",
+        assessment: "http://localhost:8080/api/agenticlearn",
+        personalization: "http://localhost:8080/api/agenticlearn",
+        admin: "http://localhost:8080/api/agenticlearn",
+        aria: "http://localhost:8080/api/agenticlearn/aria",
+        health: "http://localhost:8080/api/agenticlearn/health"
     },
     production: {
-        auth: `${CLOUD_FUNCTIONS_BASE}/agenticlearn-auth`,
-        content: `${CLOUD_FUNCTIONS_BASE}/agenticlearn-content`,
-        assessment: `${CLOUD_FUNCTIONS_BASE}/agenticlearn-assessment`,
-        personalization: `${CLOUD_FUNCTIONS_BASE}/agenticlearn-personalization`,
-        admin: `${CLOUD_FUNCTIONS_BASE}/agenticlearn-admin`,
-        aria: `${CLOUD_FUNCTIONS_BASE}/aria-function`,
-        realtime: null // Will use Firebase for real-time features
+        base: CLOUD_FUNCTIONS_BASE,
+        auth: `${CLOUD_FUNCTIONS_BASE}/api/agenticlearn/auth`,
+        content: `${CLOUD_FUNCTIONS_BASE}/api/agenticlearn`,
+        assessment: `${CLOUD_FUNCTIONS_BASE}/api/agenticlearn`,
+        personalization: `${CLOUD_FUNCTIONS_BASE}/api/agenticlearn`,
+        admin: `${CLOUD_FUNCTIONS_BASE}/api/agenticlearn`,
+        aria: `${CLOUD_FUNCTIONS_BASE}/api/agenticlearn/aria`,
+        health: `${CLOUD_FUNCTIONS_BASE}/api/agenticlearn/health`
     }
 };
 
@@ -39,81 +41,55 @@ export function getAPIEndpoints() {
     return API_CONFIG[env];
 }
 
-// Feature flags for gradual migration
+// Get endpoint for specific service
+export function getEndpoint(service = 'base') {
+    const endpoints = getAPIEndpoints();
+    return endpoints[service] || endpoints.base;
+}
+
+// Feature flags for AgenticLearn backend
 export const FEATURE_FLAGS = {
-    USE_CLOUD_FUNCTIONS_AUTH: true,
-    USE_CLOUD_FUNCTIONS_CONTENT: true,
-    USE_CLOUD_FUNCTIONS_ASSESSMENT: true, // Will use Google Cloud
-    USE_CLOUD_FUNCTIONS_PERSONALIZATION: true, // Will use Google Cloud
-    USE_CLOUD_FUNCTIONS_ADMIN: true, // Will use Google Cloud
-    USE_CLOUD_FUNCTIONS_ARIA: true, // ARIA AI Tutor ready for Cloud Functions
-    USE_FIREBASE_REALTIME: false // Still use WebSocket
+    USE_AGENTICLEARN_AUTH: true,
+    USE_AGENTICLEARN_CONTENT: true,
+    USE_AGENTICLEARN_PROGRESS: true,
+    USE_AGENTICLEARN_ARIA: true,
+    USE_CARBON_TRACKING: true,
+    USE_PERFORMANCE_MONITORING: true
 };
 
-// Get endpoint with feature flag support
-export function getEndpoint(service) {
-    const endpoints = getAPIEndpoints();
-    const flagKey = `USE_CLOUD_FUNCTIONS_${service.toUpperCase()}`;
+// API endpoint helpers
+export const API_ENDPOINTS = {
+    // Authentication
+    REGISTER: '/api/agenticlearn/auth/register',
+    LOGIN: '/api/agenticlearn/auth/login',
+    PROFILE: '/api/agenticlearn/auth/profile',
     
-    if (FEATURE_FLAGS[flagKey] && getCurrentEnvironment() === 'production') {
-        return endpoints[service];
-    }
+    // Content
+    COURSES: '/api/agenticlearn/courses',
+    COURSE_BY_ID: (id) => `/api/agenticlearn/courses/${id}`,
+    MODULES: (courseId) => `/api/agenticlearn/courses/${courseId}/modules`,
+    LESSONS: (moduleId) => `/api/agenticlearn/modules/${moduleId}/lessons`,
+    LESSON_BY_ID: (id) => `/api/agenticlearn/lessons/${id}`,
     
-    // Fallback to Google Cloud for services not yet migrated
-    const googleCloudEndpoints = {
-        auth: "https://api.agenticlearn.com/api/v1/auth",
-        content: "https://api.agenticlearn.com/api/v1/learning",
-        assessment: "https://api.agenticlearn.com/api/v1/learning/assessment",
-        personalization: "https://api.agenticlearn.com/api/v1/personalization",
-        admin: "https://api.agenticlearn.com/api/v1/admin",
-        aria: "https://api.agenticlearn.com/api/v1/aria"
-    };
-
-    return getCurrentEnvironment() === 'development' ? endpoints[service] : googleCloudEndpoints[service];
-}
-
-// Migration status tracking
-export const MIGRATION_STATUS = {
-    auth: "✅ Ready for Google Cloud",
-    content: "✅ Ready for Google Cloud",
-    assessment: "✅ Ready for Google Cloud",
-    personalization: "✅ Ready for Google Cloud",
-    admin: "✅ Ready for Google Cloud",
-    aria: "✅ Ready for Google Cloud",
-    realtime: "📋 Planned - WebSocket to Firebase"
+    // Progress
+    PROGRESS: '/api/agenticlearn/progress',
+    COURSE_PROGRESS: (courseId) => `/api/agenticlearn/progress/${courseId}`,
+    
+    // AI Features
+    ARIA_CHAT: '/api/agenticlearn/aria/chat',
+    ARIA_RECOMMENDATIONS: '/api/agenticlearn/aria/recommendations',
+    
+    // Health
+    HEALTH: '/api/agenticlearn/health'
 };
-
-// Deployment information
-export const DEPLOYMENT_INFO = {
-    googleCloud: {
-        region: "asia-southeast1",
-        runtime: "go121",
-        memory: "512Mi",
-        timeout: "60s",
-        minInstances: 0,
-        maxInstances: 100,
-        url: "https://api.agenticlearn.com",
-        status: "planned"
-    }
-};
-
-// Health check endpoints
-export function getHealthEndpoints() {
-    const endpoints = getAPIEndpoints();
-    return {
-        auth: `${endpoints.auth}/health`,
-        content: `${endpoints.content}/health`,
-        assessment: `${endpoints.assessment}/health`,
-        personalization: `${endpoints.personalization}/health`,
-        admin: `${endpoints.admin}/health`
-    };
-}
 
 // Console logging for debugging
-console.log("🌱 AgenticLearn Config loaded:", {
+console.log("�� AgenticLearn Config loaded:", {
     environment: getCurrentEnvironment(),
     projectId: PROJECT_ID,
-    endpoints: getAPIEndpoints(),
-    featureFlags: FEATURE_FLAGS,
-    migrationStatus: MIGRATION_STATUS
+    baseURL: getEndpoint('base'),
+    endpoints: getAPIEndpoints()
 });
+
+// Export for backward compatibility
+export { PROJECT_ID, CLOUD_FUNCTIONS_BASE };
